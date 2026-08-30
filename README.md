@@ -7,6 +7,8 @@ A modern service-booking web application connecting customers with local service
 - **Deployed Application:** [https://warda-web-and-app-developer.github.io/Hackathon/]
 
 ## 🔑 Demo Credentials
+
+short demo video: **[ blob:chrome-untrusted://media-app/21f21a76-3dd5-474f-b0d3-d2784a269821]
 To test the application instantly without registering a new account, use these test logins:
 
 - **Customer Account:**
