@@ -3,7 +3,7 @@
 A modern service-booking web application connecting customers with local service professionals.
 
 ## 🔗 Links
-- **GitHub Repository:** [Insert your GitHub repo link here]
+- **GitHub Repository:** [(https://github.com/Warda-Web-And-App-Developer/Hackathon.git)]
 - **Deployed Application:** [https://warda-web-and-app-developer.github.io/Hackathon/]
 
 ## 🔑 Demo Credentials
