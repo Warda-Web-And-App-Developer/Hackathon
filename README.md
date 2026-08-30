@@ -23,4 +23,4 @@ To test the application instantly without registering a new account, use these t
 - Firebase Authentication & Firestore Database
 
 ## 🤖 AI Tools Declaration
-During the development of this project, AI assistants (such as ChatGPT) were used as a development tool to help structure code, debug logic, and optimize the UI design.
+During the development of this project, Gemini were used as a development tool to help structure code, debug logic, and optimize the UI design.
