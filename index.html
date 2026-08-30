@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProFix - Home Services & Repair Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" href="./images/icon.png" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+
+    <div id="auth-screen" class="fixed inset-0 bg-[#0B275D]/95 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border-t-8 border-[#DEA924]">
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-black text-[#0B275D]">ProFix Portal</h2>
+                <p class="text-xs text-slate-500 mt-1">Reliable repair & home services at your doorstep</p>
+            </div>
+
+            <div class="flex bg-slate-100 p-1 rounded-lg mb-6">
+                <button type="button" id="tab-role-customer" onclick="setAuthRole('customer')" class="flex-1 py-2 text-sm font-semibold rounded-md bg-[#0B275D] text-white transition cursor-pointer">Customer</button>
+                <button type="button" id="tab-role-provider" onclick="setAuthRole('provider')" class="flex-1 py-2 text-sm font-semibold rounded-md text-slate-600 transition cursor-pointer">Provider</button>
+            </div>
+
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email Address</label>
+                    <input type="email" id="auth-email" required placeholder="name@example.com" class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0B275D]">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
+                    <input type="password" id="auth-password" required placeholder="••••••••" class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0B275D]">
+                </div>
+
+                <div id="provider-category-field" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Select Skill / Service</label>
+                    <select id="auth-category" class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0B275D]">
+                        <option value="Plumber">Plumber</option>
+                        <option value="Electrician">Electrician</option>
+                        <option value="AC Technician">AC Technician</option>
+                        <option value="House Cleaner">House Cleaner</option>
+                        <option value="Carpenter">Carpenter</option>
+                        <option value="Painter">Painter</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" onclick="handleLogin(event)" class="flex-1 bg-[#0B275D] hover:bg-[#2B5284] text-white font-bold py-2.5 rounded-lg text-sm transition cursor-pointer">Login</button>
+                    <button type="button" onclick="handleRegister(event)" class="flex-1 bg-[#DEA924] hover:bg-[#c9951c] text-[#0B275D] font-bold py-2.5 rounded-lg text-sm transition cursor-pointer">Register</button>
+                </div>
+            </form>
+
+            <div class="mt-6 text-center">
+                <button type="button" onclick="handleGoogleSignIn()" class="w-full border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold py-2.5 rounded-lg text-sm transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-brands fa-google text-red-500"></i> Continue with Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-app" class="flex flex-col min-h-screen hidden">
+        <header class="bg-[#0B275D] text-white shadow-md sticky top-0 z-40 border-b-4 border-[#DEA924]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="navigateHome()">
+                    <div class="bg-[#DEA924] text-[#0B275D] font-black px-3 py-1.5 rounded-lg text-lg">PF</div>
+                    <div>
+                        <h1 class="text-xl font-black tracking-wide">ProFix</h1>
+                        <p class="text-[10px] text-slate-300">Service & Repair Marketplace</p>
+                    </div>
+                </div>
+
+                <nav class="hidden md:flex items-center gap-6 text-sm font-semibold">
+                    <a href="#hero-section" onclick="navigateHome()" class="hover:text-[#DEA924] transition">Home</a>
+                    <a href="#services-overview" class="hover:text-[#DEA924] transition">Categories</a>
+                    <a href="#how-it-works" class="hover:text-[#DEA924] transition">How It Works</a>
+                    <a href="#testimonials" class="hover:text-[#DEA924] transition">Testimonials</a>
+                </nav>
+
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                        <p id="current-user-name" class="text-sm font-bold">User Name</p>
+                        <p id="current-user-role" class="text-xs text-[#DEA924] uppercase font-semibold">Customer</p>
+                    </div>
+                    <button onclick="toggleDashboard()" class="bg-[#2B5284] hover:bg-[#1a385f] text-white text-xs font-bold px-4 py-2.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-gauge"></i> <span id="dashboard-btn-text">My Bookings</span>
+                    </button>
+                    <button onclick="logoutUser()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-2.5 rounded-lg transition cursor-pointer" title="Logout">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+            
+            <div id="view-home" class="space-y-16">
+                
+                <section id="hero-section" class="bg-gradient-to-br from-[#0B275D] to-[#2B5284] text-white rounded-3xl p-8 sm:p-12 lg:p-16 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-10">
+                    <div class="space-y-6 max-w-2xl">
+                        <span class="bg-[#DEA924] text-[#0B275D] text-xs font-black px-3.5 py-1.5 rounded-full uppercase tracking-widest">Trusted Local Experts</span>
+                        <h2 class="text-4xl sm:text-5xl font-black leading-tight">Expert Home Repairs & Services at Your Doorstep</h2>
+                        <p class="text-slate-200 text-sm sm:text-base leading-relaxed">Book verified plumbers, electricians, AC technicians, carpenters, and more in seconds. Snap a photo of what needs fixing and track progress in real time.</p>
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            <a href="#providers-section" class="bg-[#DEA924] hover:bg-[#c9951c] text-[#0B275D] font-bold px-6 py-3.5 rounded-xl shadow transition text-sm">Find a Professional</a>
+                            <a href="#how-it-works" class="bg-white/10 hover:bg-white/20 text-white border border-white/30 font-bold px-6 py-3.5 rounded-xl transition text-sm">Learn How It Works</a>
+                        </div>
+                    </div>
+                    <div class="w-full lg:w-1/2 flex justify-center">
+                        <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 shadow-2xl w-full max-w-md space-y-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></div>
+                                <span class="text-xs font-semibold text-slate-200 uppercase">Live Marketplace Stats</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-center">
+                                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                                    <p class="text-2xl font-black text-[#DEA924]">100+</p>
+                                    <p class="text-xs text-slate-300 mt-1">Verified Pros</p>
+                                </div>
+                                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                                    <p class="text-2xl font-black text-[#DEA924]">4.9 ⭐</p>
+                                    <p class="text-xs text-slate-300 mt-1">Average Rating</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="services-overview" class="space-y-6">
+                    <div class="text-center max-w-xl mx-auto space-y-2">
+                        <h3 class="text-xs font-bold text-[#2B5284] uppercase tracking-wider">What You Need</h3>
+                        <h2 class="text-3xl font-black text-[#0B275D]">Explore Popular Service Categories</h2>
+                        <p class="text-xs text-slate-500">Choose from a wide variety of expert home maintenance services.</p>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 pt-4">
+                        <div onclick="document.getElementById('category-filter').value='Plumber'; filterProviders(); location.href='#providers-section';" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center hover:shadow-md hover:border-[#0B275D] transition cursor-pointer group">
+                            <div class="w-12 h-12 mx-auto bg-blue-50 text-[#0B275D] rounded-xl flex items-center justify-center text-xl mb-3 group-hover:bg-[#0B275D] group-hover:text-white transition"><i class="fa-solid fa-faucet-drip"></i></div>
+                            <h4 class="text-sm font-bold text-[#0B275D]">Plumber</h4>
+                        </div>
+                        <div onclick="document.getElementById('category-filter').value='Electrician'; filterProviders(); location.href='#providers-section';" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center hover:shadow-md hover:border-[#0B275D] transition cursor-pointer group">
+                            <div class="w-12 h-12 mx-auto bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl mb-3 group-hover:bg-amber-500 group-hover:text-white transition"><i class="fa-solid fa-bolt"></i></div>
+                            <h4 class="text-sm font-bold text-[#0B275D]">Electrician</h4>
+                        </div>
+                        <div onclick="document.getElementById('category-filter').value='AC Technician'; filterProviders(); location.href='#providers-section';" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center hover:shadow-md hover:border-[#0B275D] transition cursor-pointer group">
+                            <div class="w-12 h-12 mx-auto bg-cyan-50 text-cyan-600 rounded-xl flex items-center justify-center text-xl mb-3 group-hover:bg-cyan-500 group-hover:text-white transition"><i class="fa-solid fa-snowflake"></i></div>
+                            <h4 class="text-sm font-bold text-[#0B275D]">AC Technician</h4>
+                        </div>
+                        <div onclick="document.getElementById('category-filter').value='House Cleaner'; filterProviders(); location.href='#providers-section';" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center hover:shadow-md hover:border-[#0B275D] transition cursor-pointer group">
+                            <div class="w-12 h-12 mx-auto bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl mb-3 group-hover:bg-emerald-500 group-hover:text-white transition"><i class="fa-solid fa-broom"></i></div>
+                            <h4 class="text-sm font-bold text-[#0B275D]">Cleaner</h4>
+                        </div>
+                        <div onclick="document.getElementById('category-filter').value='Carpenter'; filterProviders(); location.href='#providers-section';" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center hover:shadow-md hover:border-[#0B275D] transition cursor-pointer group">
+                            <div class="w-12 h-12 mx-auto bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center text-xl mb-3 group-hover:bg-orange-500 group-hover:text-white transition"><i class="fa-solid fa-hammer"></i></div>
+                            <h4 class="text-sm font-bold text-[#0B275D]">Carpenter</h4>
+                        </div>
+                        <div onclick="document.getElementById('category-filter').value='Painter'; filterProviders(); location.href='#providers-section';" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center hover:shadow-md hover:border-[#0B275D] transition cursor-pointer group">
+                            <div class="w-12 h-12 mx-auto bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl mb-3 group-hover:bg-purple-500 group-hover:text-white transition"><i class="fa-solid fa-paint-roller"></i></div>
+                            <h4 class="text-sm font-bold text-[#0B275D]">Painter</h4>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="providers-section" class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div class="w-full md:w-1/2 relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
+                            <input type="text" id="search-input" oninput="filterProviders()" placeholder="Search by name, service, or location..." class="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0B275D]">
+                        </div>
+                        <div class="w-full md:w-1/3 flex items-center gap-3">
+                            <select id="category-filter" onchange="filterProviders()" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0B275D]">
+                                <option value="">All Categories</option>
+                                <option value="Plumber">Plumber</option>
+                                <option value="Electrician">Electrician</option>
+                                <option value="AC Technician">AC Technician</option>
+                                <option value="House Cleaner">House Cleaner</option>
+                                <option value="Carpenter">Carpenter</option>
+                                <option value="Painter">Painter</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center px-1">
+                        <h2 class="text-xl font-bold text-[#0B275D]">Available Professionals</h2>
+                        <span id="provider-count" class="text-xs font-semibold text-slate-500 bg-slate-200 px-3 py-1 rounded-full">Showing Providers</span>
+                    </div>
+
+                    <div id="providers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </section>
+
+                <section id="how-it-works" class="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm space-y-8">
+                    <div class="text-center max-w-xl mx-auto space-y-2">
+                        <h3 class="text-xs font-bold text-[#2B5284] uppercase tracking-wider">Simple Process</h3>
+                        <h2 class="text-3xl font-black text-[#0B275D]">How ProFix Works</h2>
+                        <p class="text-xs text-slate-500">Get your home repairs sorted in 3 straightforward steps.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center space-y-4">
+                            <div class="w-12 h-12 bg-[#0B275D] text-white rounded-2xl font-black flex items-center justify-center mx-auto text-lg shadow">1</div>
+                            <h4 class="text-lg font-bold text-[#0B275D]">Choose & Describe</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">Browse verified professionals, select your preferred technician, set your date and time, and attach a photo of the damage.</p>
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center space-y-4">
+                            <div class="w-12 h-12 bg-[#DEA924] text-[#0B275D] rounded-2xl font-black flex items-center justify-center mx-auto text-lg shadow">2</div>
+                            <h4 class="text-lg font-bold text-[#0B275D]">Get Accepted</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">The service provider reviews your request and damage photo, then accepts or updates the status instantly on your dashboard.</p>
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center space-y-4">
+                            <div class="w-12 h-12 bg-[#0B275D] text-white rounded-2xl font-black flex items-center justify-center mx-auto text-lg shadow">3</div>
+                            <h4 class="text-lg font-bold text-[#0B275D]">Repair & Rate</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">The expert arrives to fix the issue, you mark the job as completed, and you can rate their performance to help the community.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="testimonials" class="space-y-6">
+                    <div class="text-center max-w-xl mx-auto space-y-2">
+                        <h3 class="text-xs font-bold text-[#2B5284] uppercase tracking-wider">Testimonials</h3>
+                        <h2 class="text-3xl font-black text-[#0B275D]">What Our Customers Say</h2>
+                        <p class="text-xs text-slate-500">Read reviews from real homeowners and platform users.</p>
+                    </div>
+
+                    <div id="testimonials-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex items-center gap-1 text-amber-500 text-sm">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed">"Being able to upload a photo of my leaking pipe made all the difference. The plumber arrived fully prepared and fixed it in no time!"</p>
+                            <div class="flex items-center gap-3 pt-2 border-t border-slate-100">
+                                <div class="w-9 h-9 rounded-full bg-slate-200 font-bold text-xs flex items-center justify-center text-[#0B275D]">SA</div>
+                                <div>
+                                    <p class="text-xs font-bold text-[#0B275D]">Saad Ali</p>
+                                    <p class="text-[10px] text-slate-400">Customer, Karachi</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex items-center gap-1 text-amber-500 text-sm">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed">"The dashboard status tracker is incredible. I could see right away when the electrician accepted my booking request."</p>
+                            <div class="flex items-center gap-3 pt-2 border-t border-slate-100">
+                                <div class="w-9 h-9 rounded-full bg-slate-200 font-bold text-xs flex items-center justify-center text-[#0B275D]">FN</div>
+                                <div>
+                                    <p class="text-xs font-bold text-[#0B275D]">Fatima Noor</p>
+                                    <p class="text-[10px] text-slate-400">Customer, Lahore</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex items-center gap-1 text-amber-500 text-sm">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed">"Super clean interface and incredibly responsive. Managing my provider profile and incoming jobs has never been easier."</p>
+                            <div class="flex items-center gap-3 pt-2 border-t border-slate-100">
+                                <div class="w-9 h-9 rounded-full bg-slate-200 font-bold text-xs flex items-center justify-center text-[#0B275D]">ZR</div>
+                                <div>
+                                    <p class="text-xs font-bold text-[#0B275D]">Zeeshan Rauf</p>
+                                    <p class="text-[10px] text-slate-400">AC Technician Partner</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="dynamic-testimonials-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2"></div>
+                </section>
+
+                <section id="platform-feedback" class="bg-gradient-to-r from-[#0B275D] to-[#2B5284] rounded-3xl p-8 sm:p-12 text-white shadow-xl space-y-6">
+                    <div class="text-center max-w-xl mx-auto space-y-2">
+                        <span class="bg-[#DEA924] text-[#0B275D] text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">Your Voice Matters</span>
+                        <h3 class="text-3xl font-black">Rate Your Experience with ProFix</h3>
+                        <p class="text-xs text-slate-200">Help us improve our marketplace by leaving a platform review and star rating.</p>
+                    </div>
+
+                    <form onsubmit="handleWebsiteFeedback(event)" class="max-w-xl mx-auto bg-white/10 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-white/25 space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-200 uppercase mb-1">Select Rating</label>
+                                <select id="web-rating" required class="w-full px-4 py-2.5 bg-white text-slate-800 rounded-xl text-sm focus:outline-none">
+                                    <option value="5">⭐⭐⭐⭐⭐ (5 - Excellent)</option>
+                                    <option value="4">⭐⭐⭐⭐ (4 - Very Good)</option>
+                                    <option value="3">⭐⭐⭐ (3 - Average)</option>
+                                    <option value="2">⭐⭐ (2 - Needs Improvement)</option>
+                                    <option value="1">⭐ (1 - Poor)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-200 uppercase mb-1">Your Name</label>
+                                <input type="text" id="web-feedback-name" required placeholder="Enter your name" class="w-full px-4 py-2.5 bg-white text-slate-800 rounded-xl text-sm focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-200 uppercase mb-1">Feedback Comments</label>
+                            <textarea id="web-feedback-comment" required rows="3" placeholder="Tell us what you love or what we can fix..." class="w-full px-4 py-2.5 bg-white text-slate-800 rounded-xl text-sm focus:outline-none"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-[#DEA924] hover:bg-[#c9951c] text-[#0B275D] font-bold py-3 rounded-xl shadow transition cursor-pointer">Submit Website Review</button>
+                    </form>
+                </section>
+
+            </div>
+
+            <div id="view-profile" class="space-y-6 hidden">
+                <button onclick="navigateHome()" class="text-xs font-bold text-[#0B275D] hover:underline flex items-center gap-1 mb-4 cursor-pointer">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Providers
+                </button>
+                <div id="profile-details-container" class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"></div>
+            </div>
+
+            <div id="view-dashboard" class="space-y-6 hidden">
+                <button onclick="navigateHome()" class="text-xs font-bold text-[#0B275D] hover:underline flex items-center gap-1 mb-4 cursor-pointer">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Home
+                </button>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
+                    <h2 id="dashboard-title" class="text-2xl font-black text-[#0B275D]">Dashboard</h2>
+                    <p id="dashboard-subtitle" class="text-xs text-slate-500 mt-1">Manage activities</p>
+                </div>
+                <div id="dashboard-content"></div>
+            </div>
+
+        </main>
+
+        <footer class="bg-[#0B275D] text-white mt-20 border-t-4 border-[#DEA924]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-4 gap-8 text-xs text-slate-300">
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-[#DEA924] text-[#0B275D] font-black px-2.5 py-1 rounded text-sm">PF</div>
+                        <span class="text-base font-bold text-white">ProFix Portal</span>
+                    </div>
+                    <p class="leading-relaxed">Connecting homeowners with trusted, verified local service professionals for fast and reliable repairs.</p>
+                </div>
+                <div class="space-y-2">
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider">Quick Links</h4>
+                    <p><a href="#hero-section" onclick="navigateHome()" class="hover:text-[#DEA924] transition">Home</a></p>
+                    <p><a href="#services-overview" class="hover:text-[#DEA924] transition">Service Categories</a></p>
+                    <p><a href="#how-it-works" class="hover:text-[#DEA924] transition">How It Works</a></p>
+                    <p><a href="#testimonials" class="hover:text-[#DEA924] transition">Testimonials</a></p>
+                </div>
+                <div class="space-y-2">
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider">Services</h4>
+                    <p>Plumbing & Pipe Repair</p>
+                    <p>Electrical Maintenance</p>
+                    <p>AC Repair & Servicing</p>
+                    <p>Carpentry & Painting</p>
+                </div>
+                <div class="space-y-2">
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider">Contact & Support</h4>
+                    <p><i class="fa-solid fa-envelope mr-2 text-[#DEA924]"></i> support@profix.com</p>
+                    <p><i class="fa-solid fa-phone mr-2 text-[#DEA924]"></i> +92 (21) 555-PROFIX</p>
+                    <p><i class="fa-solid fa-location-dot mr-2 text-[#DEA924]"></i> Main Clifton Road, Karachi</p>
+                </div>
+            </div>
+            <div class="bg-[#07193d] py-4 text-center text-[10px] text-slate-400 border-t border-slate-800">
+                <p>&copy; 2026 ProFix Services Portal. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
